@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>SinaWeiboAPI</title>
+    <link rel='stylesheet' href='/stylesheets/bootstrap.css' />
+    <link rel='stylesheet' href='/stylesheets/flat-ui.css' />
+    <style type="text/css">
+     body{
+        background: #f5f3ef;
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+     }
+     .del{
+        float: right;
+        visibility: hidden;
+     }
+     a:hover .del{
+        visibility: visible;
+     }
+
+     .top{
+      position:fixed;
+      width:100%;
+      background:rgba(0,0,0,0.6);
+      z-index:9999;
+      color:#fff;
+     }
+
+     .inactive{
+        background-color:#000;
+     }
+    </style>
+    <script src="/javascripts/jquery.js"></script>
+    <script src="/javascripts/bootstrap.js"></script>
+    <script src="/javascripts/jquery.quicksearch.js"></script>
+  </head>
+  <body>
+   <div class="top">
+     <h2>本地项目：</h2>
+      <ul>
+        <% for(key in allPath){%>
+            <ol class="span2">
+              <% if(curPath === key)  {%>
+                <a href="/<%=key%>" class="btn btn-middle btn-block btn-danger"><%=key%>
+                  <span class="fui-cross del" data="<%=key%>"></span>
+                </a>
+              <%} else {%>
+                <a href="/<%=key%>" class="btn btn-middle btn-block btn-info"><%=key%>
+                  <span class="fui-cross del" data="<%=key%>"></span>
+                </a>
+              <% }%>
+            </ol>
+        <%}%>
+        <ol class="span1">
+          <a class="btn tagsinput-add"  href="#addProject" role="button" data-toggle="modal"></a>
+        </ol>
+      </ul>
+      <input type="" id="searchApi" placeholder="Search">
+     <hr style="margin-bottom:1px;">
+   </div>
+    
+     <div style="top:150px;position:absolute;"><%- body %></div>
+
+
+
+     <div id="addProject" class="modal hide fade" >
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">增加项目</h3>
+      </div>
+      <div class="modal-body">
+          <div class="alert" style="display:none;">
+            <strong>请检查输入</strong> 
+          </div>
+          <input id="name" type="text" value="" placeholder="项目名称" class="span2">
+          <input id="ad" type="text" value="" placeholder="项目地址" class="span4">
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+        <button class="btn btn-primary" id="add">确定</button>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script type="text/javascript">
+  $('#add').bind('click',function(){
+    var name = $('#name').val();
+    var ad = $('#ad').val();
+    if(name && ad ){
+        $.post('/addProject',{
+          'name':name,
+          'ad':ad
+        },function(){
+          location.reload();
+        });
+    }else{
+      $('.alert').show();
+    }
+
+  });
+
+  $('.del').bind('click',function(event){
+      event.preventDefault();
+       $.post('/delProject',{
+        'name':event.target.getAttribute('data')
+      },function(){
+        location.href = '/';
+      });
+
+  });
+
+  var scrollTimeout;
+   $('#searchApi').quicksearch('.list ol', {
+        onAfter: function () {
+            var $cards = $('.list');
+            var $boards = $('.panel');
+            var inactiveOffset = [];
+
+            $cards.each(function (index) {
+                var inLi = $(this).find('ol>a:not(.inactive)');
+                if (!inLi.length) {
+                    $(this).children('h2').removeClass('inactive');
+                } else {
+                    inactiveOffset.push($(inLi[0]).offset().top-150);
+                    $(this).children('h2').addClass('inactive');
+                }
+            });
+
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(function(){
+                inactiveOffset.sort(function(a,b){return a-b;});
+
+                if(inactiveOffset[0]<150){
+                    $('html,body').animate({ scrollTop: 0}, 400, 'swing');
+                }else{
+                    $('html,body').animate({ scrollTop: inactiveOffset[0]-80}, 400, 'swing');
+                }
+            },500)
+        }
+        ,hide: function () {
+            $(this).children('a').removeClass('inactive')
+        }
+        ,show: function () {
+            $(this).children('a').addClass('inactive')
+        }
+    });
+
+</script>

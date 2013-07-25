@@ -1,0 +1,48 @@
+<style>
+	.float{
+		float: left;
+		margin: 10px;
+	}
+	
+</style>
+
+<% for(key in file){%>
+	<div style="margin-left: 20px;">
+		<div class="panel">
+			<h2><span class="fui-list"><%=key%></span></h2>
+			<hr>
+			<ul class="list">
+				<% if(file[key].indexOf('.js')!==-1){%>
+					<ol class="float" >
+						<a target="_blank" class="btn  btn-mini" href="/read/<%=curPath%>_<%= file[key]%>"><%=file[key]%></a>
+					</ol>
+				<%} else {%>
+					<% for(var i=0;len = file[key].length,i<len;i++){%>
+						<% if(file[key][i].indexOf('.js')!==-1){%>
+							<ol class="float"><a  target="_blank" class="btn  btn-mini" href="/read/<%=curPath%><%= key.replace(/\//ig,'$')%>$<%= file[key][i]%>"><%=file[key][i]%></a></ol>
+						<%} else {%>
+							<ol class="float"><span style="font-size:22px;line-height:40px;"><%=file[key][i]%></span></ol>
+						<%}%>
+					<%}%>
+				<%}%>
+			</ul>
+		</div>
+		<div style="clear:both"></div>
+	</div>
+
+<%}%>
+
+<script type="text/javascript">
+		var colorList = ['emerald','belize-hole','amethyst','wet-asphalt','sun-flower','carrot','alizarin'];
+
+		var domList = $('.list');
+		$.each(domList,function(i,one){
+			var random = parseInt( Math.random()*colorList.length,10 );
+			var randomColor = 'palette-'+colorList[ random ];
+			//add random bg-color
+			$(one).find('.btn').addClass(randomColor);
+
+		});
+
+
+</script>
